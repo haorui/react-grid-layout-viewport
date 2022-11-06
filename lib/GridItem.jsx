@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { DraggableCore } from "react-draggable";
 import { Resizable } from "react-resizable";
-import { fastPositionEqual, perc, setTopLeft, setTransform } from "./utils";
+import { fastPositionEqual, perc, setTopLeft, setTransform, isUnitRelative, getViewportWidth } from "./utils";
 import {
   calcGridItemPosition,
   calcGridItemWHPx,
@@ -90,7 +90,9 @@ type Props = {
   onDragStop?: GridItemCallback<GridDragEvent>,
   onResize?: GridItemCallback<GridResizeEvent>,
   onResizeStart?: GridItemCallback<GridResizeEvent>,
-  onResizeStop?: GridItemCallback<GridResizeEvent>
+  onResizeStop?: GridItemCallback<GridResizeEvent>,
+  
+  unit?: string;
 };
 
 type DefaultProps = {
@@ -101,7 +103,8 @@ type DefaultProps = {
   minW: number,
   maxH: number,
   maxW: number,
-  transformScale: number
+  transformScale: number,
+  unit: 'px'
 };
 
 /**
@@ -202,7 +205,8 @@ export default class GridItem extends React.Component<Props, State> {
     minW: 1,
     maxH: Infinity,
     maxW: Infinity,
-    transformScale: 1
+    transformScale: 1,
+    unit: 'px'
   };
 
   state: State = {
@@ -293,7 +297,8 @@ export default class GridItem extends React.Component<Props, State> {
       containerWidth: props.containerWidth,
       margin: props.margin,
       maxRows: props.maxRows,
-      rowHeight: props.rowHeight
+      rowHeight: props.rowHeight,
+      unit: props.unit
     };
   }
 
@@ -308,15 +313,15 @@ export default class GridItem extends React.Component<Props, State> {
    * @return {Object}     Style object.
    */
   createStyle(pos: Position): { [key: string]: ?string } {
-    const { usePercentages, containerWidth, useCSSTransforms } = this.props;
+    const { usePercentages, containerWidth, useCSSTransforms, unit } = this.props;
 
     let style;
     // CSS Transforms support (default)
     if (useCSSTransforms) {
-      style = setTransform(pos);
+      style = setTransform(pos, unit);
     } else {
       // top,left (slow)
-      style = setTopLeft(pos);
+      style = setTopLeft(pos, unit);
 
       // This is used for server rendering.
       if (usePercentages) {

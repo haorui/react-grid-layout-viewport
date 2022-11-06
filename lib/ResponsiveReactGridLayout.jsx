@@ -1,6 +1,6 @@
 // @flow
 import * as React from "react";
-import PropTypes from "prop-types";
+import PropTypes, { string } from "prop-types";
 import isEqual from "lodash.isequal";
 
 import {
@@ -69,7 +69,8 @@ type Props<Breakpoint: string = string> = {|
     margin: [number, number],
     cols: number,
     containerPadding: ?[number, number]
-  ) => void
+  ) => void,
+  unit: string
 |};
 
 type DefaultProps = Pick<
@@ -83,7 +84,8 @@ type DefaultProps = Pick<
     margin: 0,
     onBreakpointChange: 0,
     onLayoutChange: 0,
-    onWidthChange: 0
+    onWidthChange: 0,
+    unit: 'px'
   |}
 >;
 
